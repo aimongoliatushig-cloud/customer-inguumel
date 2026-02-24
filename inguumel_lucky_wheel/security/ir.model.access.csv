@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lucky_wheel_config_rule,lucky.wheel.config,model_lucky_wheel_config,,1,1,1,1
+access_lucky_wheel_spend_rule,lucky.wheel.spend,model_lucky_wheel_spend,,1,1,1,1
+access_lucky_wheel_node_rule,lucky.wheel.node,model_lucky_wheel_node,,1,1,1,1

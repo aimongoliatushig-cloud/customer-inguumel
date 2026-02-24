@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Delivery (stock.picking) form: MXM "Out for delivery" button -->
+  <record id="view_picking_form_mxm" model="ir.ui.view">
+    <field name="name">stock.picking.form.mxm</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <field name="mxm_order_last_status" invisible="1"/>
+        <button name="action_mxm_out_for_delivery"
+                type="object"
+                string="Хүргэлтэд гаргах"
+                class="btn-secondary"
+                attrs="{'invisible': [
+                  '|', '|', '|',
+                  ('picking_type_id.code', '!=', 'outgoing'),
+                  ('state', 'not in', ('assigned', 'confirmed', 'waiting')),
+                  ('mxm_order_last_status', 'in', ('OUT_FOR_DELIVERY', 'DELIVERED')),
+                  '&amp;',
+                  ('origin', '=', False),
+                  ('sale_id', '=', False)
+                ]}"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
