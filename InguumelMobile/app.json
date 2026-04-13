@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "InguumelMobile",
+    "name": "Inguumel",
     "slug": "InguumelMobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,9 +9,16 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.inguumel.customer",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.inguumel.customer",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -22,11 +29,16 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Профайлын зураг сонгохын тулд таны зургийн сангаас зураг унших зөвшөөрөл хэрэгтэй."
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -40,13 +52,21 @@
         }
       ]
     ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
     "experiments": {
-      "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {
-      "apiBaseUrl": "http://72.62.247.95:8069",
-      "env": "production"
+      "apiBaseUrl": "http://127.0.0.1:8069",
+      "env": "development",
+      "privacyPolicyUrl": "http://127.0.0.1:8069/legal/privacy-policy",
+      "termsUrl": "http://127.0.0.1:8069/legal/terms",
+      "accountDeletionUrl": "http://127.0.0.1:8069/legal/account-deletion"
     }
   }
 }

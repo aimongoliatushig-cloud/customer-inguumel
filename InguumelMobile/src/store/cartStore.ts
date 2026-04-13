@@ -160,27 +160,6 @@ export const cartStore = create<CartState>((set) => ({
   amount_total: SAFE_DEFAULT_AMOUNT,
 
   setCart: (data) => {
-    // #region agent log
-    try {
-      const dl = typeof (data as { lines?: unknown })?.lines;
-      const dla = Array.isArray((data as { lines?: unknown })?.lines);
-      if (typeof fetch !== 'undefined') {
-        fetch('http://127.0.0.1:7245/ingest/ce95ccf8-fa0f-48b0-8903-68f2e746d517', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            location: 'cartStore.ts:setCart',
-            message: 'setCart called',
-            data: { dataIsNull: data == null, dataLinesType: dl, dataLinesIsArray: dla },
-            timestamp: Date.now(),
-            sessionId: 'cart-debug',
-            runId: 'run1',
-            hypothesisId: 'H4',
-          }),
-        }).catch(() => {});
-      }
-    } catch (_) {}
-    // #endregion
     if (data == null) {
       set({ cart_id: null, lines: SAFE_DEFAULT_LINES, amount_total: SAFE_DEFAULT_AMOUNT });
       return;
@@ -196,7 +175,6 @@ export const cartStore = create<CartState>((set) => ({
       amount_total,
     });
     if (__DEV__) {
-      // eslint-disable-next-line no-console
       console.log(
         '[CART_UI_DEBUG] cart set: cart_id=',
         data.cart_id,

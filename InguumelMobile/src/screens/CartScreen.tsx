@@ -28,8 +28,6 @@ const CHECKOUT_BAR_APPROX_HEIGHT = 180;
 /** Safe fallback so we never read .length on undefined. */
 const EMPTY_LINES: CartLine[] = [];
 
-const LOG_ENDPOINT = 'http://127.0.0.1:7245/ingest/ce95ccf8-fa0f-48b0-8903-68f2e746d517';
-
 export function CartScreen({ navigation }: Props) {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -41,25 +39,6 @@ export function CartScreen({ navigation }: Props) {
     if (warehouseId != null) {
       getCart(warehouseId)
         .then((cart) => {
-          // #region agent log
-          try {
-            const cartLinesType = typeof (cart as { lines?: unknown })?.lines;
-            const cartLinesIsArray = Array.isArray((cart as { lines?: unknown })?.lines);
-            fetch(LOG_ENDPOINT, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                location: 'CartScreen.tsx:useEffect-then',
-                message: 'getCart resolved',
-                data: { cartLinesType, cartLinesIsArray, hasCart: !!cart },
-                timestamp: Date.now(),
-                sessionId: 'cart-debug',
-                runId: 'run1',
-                hypothesisId: 'H4',
-              }),
-            }).catch(() => {});
-          } catch (_) {}
-          // #endregion
           cartStore.getState().setCart(cart);
           const items = Array.isArray(cart?.lines) ? cart.lines : [];
           const sample = items[0];
@@ -70,23 +49,6 @@ export function CartScreen({ navigation }: Props) {
         })
         .catch((err) => {
           if (isCancelError(err)) return;
-          // #region agent log
-          try {
-            fetch(LOG_ENDPOINT, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                location: 'CartScreen.tsx:useEffect-catch',
-                message: 'getCart failed',
-                data: { err: String(err) },
-                timestamp: Date.now(),
-                sessionId: 'cart-debug',
-                runId: 'run1',
-                hypothesisId: 'H4',
-              }),
-            }).catch(() => {});
-          } catch (_) {}
-          // #endregion
           cartStore.getState().setCart(null);
         });
     }
@@ -112,39 +74,6 @@ export function CartScreen({ navigation }: Props) {
     [warehouseId]
   );
   const keyExtractor = useCallback((item: CartLine) => String(item.id), []);
-
-  // #region agent log
-  try {
-    const safeLines = Array.isArray(linesFromStore) ? linesFromStore : EMPTY_LINES;
-    fetch(LOG_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: 'CartScreen.tsx:before-computed',
-        message: 'CartScreen before lines/amountTotal computed',
-        data: { safeLinesLength: safeLines.length, linesFromStoreIsArray: Array.isArray(linesFromStore) },
-        timestamp: Date.now(),
-        sessionId: 'cart-debug',
-        runId: 'run1',
-        hypothesisId: 'H1,H2',
-      }),
-    }).catch(() => {});
-  } catch (e) {
-    fetch(LOG_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: 'CartScreen.tsx:before-computed',
-        message: 'CartScreen computed threw',
-        data: { err: String(e) },
-        timestamp: Date.now(),
-        sessionId: 'cart-debug',
-        runId: 'run1',
-        hypothesisId: 'H1,H2',
-      }),
-    }).catch(() => {});
-  }
-  // #endregion
 
   const lines = Array.isArray(linesFromStore) ? linesFromStore : EMPTY_LINES;
   const amountTotal =

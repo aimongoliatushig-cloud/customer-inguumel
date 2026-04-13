@@ -4,7 +4,7 @@ import { formatMnt } from '~/components/cart/formatMoney';
 
 /** Exported for FlatList paddingBottom calculation on Home screen. */
 export const CART_PILL_HEIGHT = 44;
-const PILL_HEIGHT = CART_PILL_HEIGHT;
+const PILL_HEIGHT = 54;
 const LOGO_SIZE = 22;
 const BADGE_SIZE = 28;
 
@@ -44,7 +44,7 @@ function CartPillInner({ visible, totalQty, totalAmount, onPress }: CartPillProp
         )}
       </View>
       <View style={styles.amountWrap}>
-        <Text style={styles.amountLabel}>Нийт үнэ </Text>
+        <Text style={styles.amountLabel}>Сагс</Text>
         <Text
           style={[
             styles.amount,
@@ -69,24 +69,24 @@ const styles = StyleSheet.create({
     height: PILL_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.85)',
-    borderRadius: 26,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 3,
-    elevation: 3,
+    backgroundColor: '#0f172a',
+    borderRadius: 999,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    shadowColor: '#020617',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    elevation: 6,
   },
   logoWrap: {
-    width: LOGO_SIZE + 4,
-    height: LOGO_SIZE + 4,
-    borderRadius: (LOGO_SIZE + 4) / 2,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    width: LOGO_SIZE + 10,
+    height: LOGO_SIZE + 10,
+    borderRadius: (LOGO_SIZE + 10) / 2,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 12,
   },
   logo: {
     width: LOGO_SIZE,
@@ -106,14 +106,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   amountWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
   },
   amountLabel: {
     fontSize: 12,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.72)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 2,
   },
   amount: {
     fontSize: 16,
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
     minWidth: BADGE_SIZE,
     height: BADGE_SIZE,
     borderRadius: BADGE_SIZE / 2,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#0f766e',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 6,

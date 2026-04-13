@@ -11,6 +11,7 @@ export { OrderDetailScreen } from './OrderDetailScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { LocationSwitchScreen } from './LocationSwitchScreen';
 export { DeliveryAddressScreen } from './DeliveryAddressScreen';
+export { AccountPrivacyScreen } from './AccountPrivacyScreen';
 export { LuckyWheelScreen } from './LuckyWheelScreen';
 export { SpinResultScreen } from './SpinResultScreen';
 export { PrizeWalletScreen } from './PrizeWalletScreen';

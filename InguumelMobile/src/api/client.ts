@@ -84,6 +84,13 @@ function maskToken(token: string | null): string {
   return token.slice(0, 8) + '...';
 }
 
+function devLog(message: string): void {
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    // eslint-disable-next-line no-console
+    console.log(message);
+  }
+}
+
 /** Request: attach Bearer from memory ONLY (sync, zero await). Instrumentation: method, url, authHeader, token mask. */
 api.interceptors.request.use(
   (req: InternalAxiosRequestConfig) => {
@@ -95,8 +102,7 @@ api.interceptors.request.use(
     const method = (req.method ?? 'GET').toUpperCase();
     const url = buildFinalUrl(req.baseURL, req.url, req.params as Record<string, unknown> | undefined);
     const authHeader = !!(req.headers?.Authorization ?? req.headers?.authorization);
-    // eslint-disable-next-line no-console
-    console.log(`[HTTP OUT] ${method} ${url} authHeader=${authHeader} token=${maskToken(token)}`);
+    devLog(`[HTTP OUT] ${method} ${url} authHeader=${authHeader} token=${maskToken(token)}`);
     return req;
   },
   (err) => Promise.reject(err)
@@ -109,8 +115,7 @@ api.interceptors.response.use(
     const url = buildFinalUrl(res.config.baseURL, res.config.url, res.config.params as Record<string, unknown> | undefined);
     const apiCode = body?.code != null ? String(body.code) : '-';
     const requestId = body?.request_id != null ? String(body.request_id) : '-';
-    // eslint-disable-next-line no-console
-    console.log(`[HTTP IN] status=${res.status} apiCode=${apiCode} url=${url} request_id=${requestId}`);
+    devLog(`[HTTP IN] status=${res.status} apiCode=${apiCode} url=${url} request_id=${requestId}`);
     if (body && body.success === false && body.code === 'UNAUTHORIZED') {
       onGlobalLogout?.();
       return Promise.reject(
@@ -133,11 +138,9 @@ api.interceptors.response.use(
     const requestId = data?.request_id != null ? String(data.request_id) : '-';
     const message = data?.message != null ? String(data.message) : '-';
     if (typeof __DEV__ !== 'undefined' && __DEV__) {
-      // eslint-disable-next-line no-console
-      console.log(`[HTTP IN] endpoint=${url} status=${status} request_id=${requestId} code=${apiCode} message=${message}`);
+      devLog(`[HTTP IN] endpoint=${url} status=${status} request_id=${requestId} code=${apiCode} message=${message}`);
     } else {
-      // eslint-disable-next-line no-console
-      console.log(`[HTTP IN] status=${status} apiCode=${apiCode} url=${url} request_id=${requestId}`);
+      devLog(`[HTTP IN] status=${status} apiCode=${apiCode} url=${url} request_id=${requestId}`);
     }
     const isCanceled = isCancelError(err);
     if (isCanceled) {

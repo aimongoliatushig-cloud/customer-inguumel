@@ -32,6 +32,7 @@ export type ProfileStackParamList = {
   ProfileHome: undefined;
   LocationSwitch: undefined;
   DeliveryAddress: undefined;
+  AccountPrivacy: undefined;
   LuckyWheel: undefined;
   SpinResult: { result: import('~/types').LuckySpinResultData };
   PrizeWallet: undefined;

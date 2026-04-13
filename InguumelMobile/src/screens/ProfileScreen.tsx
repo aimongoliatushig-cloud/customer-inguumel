@@ -171,11 +171,10 @@ export function ProfileScreen({ navigation }: Props) {
       onPress: () => navigation.navigate('PrizeWallet'),
     },
     {
-      key: 'support',
-      icon: 'help-circle-outline' as const,
-      label: 'Тусламж / Support',
-      onPress: () =>
-        Alert.alert('Тусламж', 'Тусламжтай холбогдох: support@example.com'),
+      key: 'privacy',
+      icon: 'shield-checkmark-outline' as const,
+      label: 'Нууцлал ба бүртгэл',
+      onPress: () => navigation.navigate('AccountPrivacy'),
     },
   ];
 

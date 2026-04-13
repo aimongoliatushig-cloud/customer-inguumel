@@ -72,46 +72,59 @@ export function LoginScreen({ navigation, route }: Props) {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.title}>Нэвтрэх</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Утасны дугаар"
-          placeholderTextColor="#94a3b8"
-          value={phone}
-          onChangeText={setPhone}
-          autoCapitalize="none"
-          keyboardType="phone-pad"
-          editable={!loading}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="ПИН код"
-          placeholderTextColor="#94a3b8"
-          value={pin}
-          onChangeText={setPin}
-          secureTextEntry
-          keyboardType="number-pad"
-          editable={!loading}
-        />
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleLogin}
-          disabled={loading}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? 'Нэвтэрч байна…' : 'Нэвтрэх'}
+        <View style={styles.heroCard}>
+          <Text style={styles.title}>Нэвтрэх</Text>
+          <Text style={styles.subtitle}>
+            Өөрийн байршилд ойр агуулахаас бараа захиалах хэрэглэгчийн орчин.
           </Text>
-        </TouchableOpacity>
-        <View style={styles.registerRow}>
-          <Text style={styles.registerPrompt}>Бүртгэлгүй юу?</Text>
+          <Text style={styles.helper}>
+            Бүртгэлтэй утасны дугаар болон 6 оронтой ПИН кодоо ашиглан орно.
+          </Text>
+        </View>
+
+        <View style={styles.formCard}>
+          <Text style={styles.fieldLabel}>Утасны дугаар</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="99112233"
+            placeholderTextColor="#94a3b8"
+            value={phone}
+            onChangeText={setPhone}
+            autoCapitalize="none"
+            keyboardType="phone-pad"
+            editable={!loading}
+          />
+          <Text style={styles.fieldLabel}>ПИН код</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="123456"
+            placeholderTextColor="#94a3b8"
+            value={pin}
+            onChangeText={setPin}
+            secureTextEntry
+            keyboardType="number-pad"
+            editable={!loading}
+          />
           <TouchableOpacity
-            onPress={() => navigation.navigate('Register')}
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleLogin}
             disabled={loading}
-            hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
+            activeOpacity={0.8}
           >
-            <Text style={styles.registerLink}>Бүртгүүлэх</Text>
+            <Text style={styles.buttonText}>
+              {loading ? 'Нэвтэрч байна…' : 'Үргэлжлүүлэх'}
+            </Text>
           </TouchableOpacity>
+          <View style={styles.registerRow}>
+            <Text style={styles.registerPrompt}>Бүртгэлгүй юу?</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Register')}
+              disabled={loading}
+              hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
+            >
+              <Text style={styles.registerLink}>Бүртгүүлэх</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -121,7 +134,7 @@ export function LoginScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8fafc',
   },
   scrollContent: {
     flexGrow: 1,
@@ -133,33 +146,70 @@ const styles = StyleSheet.create({
   },
   logoWrap: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 20,
   },
   logo: {
     width: LOGO_WIDTH,
     height: LOGO_WIDTH,
   },
+  heroCard: {
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+    borderRadius: 24,
+    padding: 22,
+    marginBottom: 18,
+  },
   title: {
-    fontSize: 26,
-    fontWeight: '600',
-    marginBottom: 28,
-    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 10,
     color: '#0f172a',
+  },
+  subtitle: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#1e3a8a',
+    marginBottom: 8,
+  },
+  helper: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#475569',
+  },
+  formCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.06,
+    shadowRadius: 22,
+    elevation: 4,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#475569',
+    marginBottom: 8,
+    textTransform: 'uppercase',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
+    borderColor: '#cbd5e1',
+    borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     marginBottom: 16,
     fontSize: 17,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8fafc',
   },
   button: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#0f766e',
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
     marginTop: 8,
   },

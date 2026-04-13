@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import type { Category } from '~/types';
 
 const CHIP_HEIGHT = 36;
@@ -50,32 +50,35 @@ export function CategoryChips({ categories, selectedId, onSelect }: CategoryChip
 }
 
 const styles = StyleSheet.create({
-  scroll: { maxHeight: CHIP_HEIGHT + 12 },
+  scroll: { maxHeight: CHIP_HEIGHT + 20 },
   scrollContent: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
   },
   chip: {
     height: CHIP_HEIGHT,
-    paddingHorizontal: CHIP_PADDING_H,
+    paddingHorizontal: CHIP_PADDING_H + 2,
     marginRight: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: CHIP_HEIGHT / 2,
-    backgroundColor: 'rgba(148, 163, 184, 0.2)',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#dbeafe',
   },
   chipSelected: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#0f766e',
+    borderColor: '#0f766e',
   },
   chipText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#475569',
   },
   chipTextSelected: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

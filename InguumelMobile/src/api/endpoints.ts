@@ -76,8 +76,10 @@ export async function getOwnerMe(): Promise<OwnerMeData | null> {
 /** Auth – POST login only; returns login data. Caller must set token before /auth/me. */
 export async function login(payload: LoginPayload): Promise<LoginData> {
   const res = await api.post<ApiResponse<LoginData>>(LOGIN_ENDPOINT, payload);
-  // eslint-disable-next-line no-console
-  console.log('AUTH RAW', res?.status, res?.data);
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.log('AUTH RAW', res?.status, res?.data);
+  }
   const payload_ = res?.data;
   const data = payload_?.data as LoginData | undefined;
   if (!payload_?.success || data?.uid == null) {
@@ -153,16 +155,42 @@ export async function fetchProducts(params: {
     : undefined;
   let items: ProductItem[] = [];
   if (Array.isArray(nested)) {
-    items = nested as ProductItem[];
+    items = nested.map((item) => {
+      const rawItem = (item ?? {}) as Record<string, unknown>;
+      const stockCandidate =
+        rawItem.stock_qty ??
+        rawItem.available_qty ??
+        rawItem.qty_free ??
+        rawItem.qty_on_hand;
+      const stockNum = Number(stockCandidate);
+      return {
+        id: Number(rawItem.id ?? 0),
+        name: String(rawItem.name ?? ''),
+        price: Number(rawItem.price ?? 0),
+        stock_qty: Number.isNaN(stockNum) ? 0 : stockNum,
+        image_url: typeof rawItem.image_url === 'string' ? rawItem.image_url : undefined,
+        write_date: typeof rawItem.write_date === 'string' ? rawItem.write_date : undefined,
+        category_id:
+          typeof rawItem.category_id === 'number' && !Number.isNaN(rawItem.category_id)
+            ? rawItem.category_id
+            : undefined,
+        category_name: typeof rawItem.category_name === 'string' ? rawItem.category_name : undefined,
+        category_path: typeof rawItem.category_path === 'string' ? rawItem.category_path : undefined,
+      };
+    });
   } else if (nested && typeof nested === 'object' && nested !== null && 'items' in nested) {
     items = Array.isArray((nested as { items: unknown }).items) ? ((nested as { items: ProductItem[] }).items) : [];
   }
   const paginationPage = (raw && typeof raw === 'object' && 'pagination' in (raw as { pagination?: unknown }))
     ? ((raw as { pagination?: { page?: number; page_size?: number; total?: number } }).pagination)
     : undefined;
-  const pageNum = paginationPage?.page ?? page;
-  const pageSize = paginationPage?.page_size ?? items.length;
-  const totalCount = paginationPage?.total ?? items.length;
+  const meta =
+    raw && typeof raw === 'object' && 'meta' in (raw as { meta?: unknown })
+      ? ((raw as { meta?: { page?: number; limit?: number; count?: number } }).meta)
+      : undefined;
+  const pageNum = paginationPage?.page ?? meta?.page ?? page;
+  const pageSize = paginationPage?.page_size ?? meta?.limit ?? items.length;
+  const totalCount = paginationPage?.total ?? meta?.count ?? items.length;
 
   if (isDev) {
     // eslint-disable-next-line no-console
@@ -210,12 +238,16 @@ export async function getCart(warehouseId: number): Promise<NormalizedCart> {
   const baseUrl = config.apiBaseUrl;
   const params = { warehouse_id: warehouseId };
   const finalUrl = `${baseUrl.replace(/\/$/, '')}${MXM_CART_PATH}?warehouse_id=${warehouseId}`;
-  // eslint-disable-next-line no-console
-  console.log('[CART_DEBUG] getCart URL:', finalUrl, 'method: GET', 'resolved warehouse_id:', warehouseId);
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.log('[CART_DEBUG] getCart URL:', finalUrl, 'method: GET', 'resolved warehouse_id:', warehouseId);
+  }
   try {
     const res = await api.get<ApiResponse<Record<string, unknown>>>(MXM_CART_PATH, { params });
-    // eslint-disable-next-line no-console
-    console.log('[CART_DEBUG] getCart response status:', res.status, 'data:', JSON.stringify(res.data));
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[CART_DEBUG] getCart response status:', res.status, 'data:', JSON.stringify(res.data));
+    }
     const body = res.data;
     if (!body?.success || body.data === undefined) {
       throw new Error((body?.message as string) ?? 'Request failed');
@@ -224,8 +256,10 @@ export async function getCart(warehouseId: number): Promise<NormalizedCart> {
     return normalizeCartResponse(raw, config.apiBaseUrl);
   } catch (err: unknown) {
     const ax = err as { response?: { status?: number; data?: unknown } };
-    // eslint-disable-next-line no-console
-    console.log('[CART_DEBUG] getCart ERROR status:', ax.response?.status, 'response.data:', ax.response?.data);
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[CART_DEBUG] getCart ERROR status:', ax.response?.status, 'response.data:', ax.response?.data);
+    }
     throw err;
   }
 }
@@ -244,20 +278,26 @@ export async function addCartLine(payload: AddCartLinePayload): Promise<Normaliz
     product_id: payload.product_id,
     qty: payload.qty,
   };
-  // eslint-disable-next-line no-console
-  console.log('[CART_DEBUG] addCartLine URL:', finalUrl, 'method: POST', 'body:', JSON.stringify(body), 'resolved warehouse_id:', warehouse_id);
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.log('[CART_DEBUG] addCartLine URL:', finalUrl, 'method: POST', 'body:', JSON.stringify(body), 'resolved warehouse_id:', warehouse_id);
+  }
   try {
     const res = await api.post<ApiResponse<Record<string, unknown>>>(MXM_CART_LINES_PATH, body);
-    // eslint-disable-next-line no-console
-    console.log('[CART_DEBUG] addCartLine response status:', res.status, 'data:', JSON.stringify(res.data));
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[CART_DEBUG] addCartLine response status:', res.status, 'data:', JSON.stringify(res.data));
+    }
     if (!res.data?.success) throw new Error((res.data?.message as string) ?? 'Request failed');
     const raw = res.data?.data;
     const cart = normalizeCartResponse(raw, config.apiBaseUrl);
     return cart;
   } catch (err: unknown) {
     const ax = err as { response?: { status?: number; data?: unknown } };
-    // eslint-disable-next-line no-console
-    console.log('[CART_DEBUG] addCartLine ERROR status:', ax.response?.status, 'response.data:', ax.response?.data);
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[CART_DEBUG] addCartLine ERROR status:', ax.response?.status, 'response.data:', ax.response?.data);
+    }
     throw err;
   }
 }
@@ -269,8 +309,10 @@ export async function updateCartLine(
   warehouseId: number
 ): Promise<NormalizedCart> {
   const url = `${MXM_CART_LINES_PATH}/${lineId}`;
-  // eslint-disable-next-line no-console
-  console.log('[CART_DEBUG] updateCartLine URL:', url, 'method: PATCH', 'warehouse_id:', warehouseId, 'body:', JSON.stringify(body));
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.log('[CART_DEBUG] updateCartLine URL:', url, 'method: PATCH', 'warehouse_id:', warehouseId, 'body:', JSON.stringify(body));
+  }
   const res = await api.patch<ApiResponse<Record<string, unknown>>>(url, body, { params: { warehouse_id: warehouseId } });
   const raw = res.data?.data;
   return normalizeCartResponse(raw, config.apiBaseUrl);
@@ -279,8 +321,10 @@ export async function updateCartLine(
 /** DELETE cart line – server returns full cart in response.data; replace cart state with it. */
 export async function removeCartLine(lineId: number, warehouseId: number): Promise<NormalizedCart> {
   const url = `${MXM_CART_LINES_PATH}/${lineId}`;
-  // eslint-disable-next-line no-console
-  console.log('[CART_DEBUG] removeCartLine URL:', url, 'method: DELETE', 'warehouse_id:', warehouseId);
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.log('[CART_DEBUG] removeCartLine URL:', url, 'method: DELETE', 'warehouse_id:', warehouseId);
+  }
   const res = await api.delete<ApiResponse<Record<string, unknown>>>(url, { params: { warehouse_id: warehouseId } });
   const raw = res.data?.data;
   return normalizeCartResponse(raw, config.apiBaseUrl);
@@ -291,7 +335,7 @@ export async function clearCart(warehouseId: number): Promise<void> {
   await api.delete(MXM_CART_PATH, { params: { warehouse_id: warehouseId } });
 }
 
-/** POST /api/v1/mxm/cart/checkout?warehouse_id=# */
+/** POST /api/v1/cart/checkout?warehouse_id=# (canonical local checkout route) */
 export async function checkout(idempotencyKey: string, warehouseId: number): Promise<CheckoutData> {
   if (warehouseId == null || Number.isNaN(warehouseId)) {
     const msg = 'Салбараа (агуулхаа) сонгоно уу';
@@ -299,13 +343,17 @@ export async function checkout(idempotencyKey: string, warehouseId: number): Pro
   }
   setIdempotencyKey(idempotencyKey);
   try {
-    const url = '/api/v1/mxm/cart/checkout';
+    const url = '/api/v1/cart/checkout';
     const params = { warehouse_id: warehouseId };
-    // eslint-disable-next-line no-console
-    console.log('[CART_DEBUG] checkout URL:', config.apiBaseUrl + url + '?warehouse_id=' + warehouseId, 'method: POST');
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[CART_DEBUG] checkout URL:', config.apiBaseUrl + url + '?warehouse_id=' + warehouseId, 'method: POST');
+    }
     const res = await api.post<ApiResponse<CheckoutData>>(url, {}, { params });
-    // eslint-disable-next-line no-console
-    console.log('[CART_DEBUG] checkout response status:', res.status, 'data:', JSON.stringify(res.data));
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[CART_DEBUG] checkout response status:', res.status, 'data:', JSON.stringify(res.data));
+    }
     return parse(res);
   } finally {
     clearIdempotencyKey();
@@ -487,13 +535,17 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreateOr
   }
 
   const url = '/api/v1/mxm/order/create';
-  // eslint-disable-next-line no-console
-  console.log('[ORDER_DEBUG] createOrder payload (warehouse_id from locationStore):', JSON.stringify({ url: config.apiBaseUrl + url, body, params: { warehouse_id } }));
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.log('[ORDER_DEBUG] createOrder payload (warehouse_id from locationStore):', JSON.stringify({ url: config.apiBaseUrl + url, body, params: { warehouse_id } }));
+  }
 
   try {
     const res = await api.post<ApiResponse<unknown>>(url, body, { params: { warehouse_id } });
-    // eslint-disable-next-line no-console
-    console.log('[ORDER_DEBUG] createOrder response status:', res.status, 'data:', JSON.stringify(res.data));
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[ORDER_DEBUG] createOrder response status:', res.status, 'data:', JSON.stringify(res.data));
+    }
 
     const is2xx = res.status >= 200 && res.status < 300;
     const data = (res.data as { data?: unknown })?.data;
@@ -521,8 +573,10 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreateOr
     return { order_id: extractOrderId(obj), order_number: extractOrderNumber(obj) };
   } catch (err: unknown) {
     const ax = err as { response?: { status?: number; data?: unknown } };
-    // eslint-disable-next-line no-console
-    console.log('[ORDER_DEBUG] createOrder ERROR status:', ax.response?.status, 'response.data:', ax.response?.data);
+    if (isDev) {
+      // eslint-disable-next-line no-console
+      console.log('[ORDER_DEBUG] createOrder ERROR status:', ax.response?.status, 'response.data:', ax.response?.data);
+    }
     throw err;
   }
 }

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fetchProducts, fetchCategories, getCart, addCartLine, updateCartLine, removeCartLine } from '~/api/endpoints';
+import { fetchProducts, getCart, addCartLine, updateCartLine, removeCartLine } from '~/api/endpoints';
 import { isCancelError } from '~/api/client';
 import { isDev } from '~/constants/config';
 import { getAlertMessage } from '~/utils/errors';
@@ -47,10 +47,13 @@ export function HomeProductsScreen({ navigation }: Props) {
   const loadCategories = categoryStore((s) => s.loadCategories);
   const selectCategory = categoryStore((s) => s.selectCategory);
   const cartLines = cartStore((s) => s.lines);
-  const qtyByProductId = React.useMemo(
-    () => cartLines.reduce<Record<number, number>>((acc, l) => ({ ...acc, [l.product_id]: l.qty }), {}),
-    [cartLines]
-  );
+  const qtyByProductId = React.useMemo(() => {
+    const next: Record<number, number> = {};
+    for (const line of cartLines) {
+      next[line.product_id] = line.qty;
+    }
+    return next;
+  }, [cartLines]);
   const totalQty = cartStore((s) => s.lines.reduce((sum, l) => sum + l.qty, 0));
   const totalAmount = cartStore((s) => s.amount_total);
 
@@ -261,10 +264,31 @@ export function HomeProductsScreen({ navigation }: Props) {
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
           warehouseId != null ? (
-            <LuckyWheelProgressCard
-              warehouseId={warehouseId}
-              onPress={goToLuckyWheel}
-            />
+            <>
+              <View style={styles.heroCard}>
+                <Text style={styles.heroEyebrow}>Идэвхтэй агуулах</Text>
+                <Text style={styles.heroTitle}>#{warehouseId} агуулахын бараанууд</Text>
+                <Text style={styles.heroSubtitle}>
+                  {selectedCategoryId != null
+                    ? 'Сонгосон ангиллын бараануудыг харуулж байна.'
+                    : 'Бүх боломжтой бараануудыг харуулж байна.'}
+                </Text>
+                <View style={styles.heroStatsRow}>
+                  <View style={styles.heroStatCard}>
+                    <Text style={styles.heroStatValue}>{items.length}</Text>
+                    <Text style={styles.heroStatLabel}>Харагдаж буй бараа</Text>
+                  </View>
+                  <View style={styles.heroStatCard}>
+                    <Text style={styles.heroStatValue}>{categories.length}</Text>
+                    <Text style={styles.heroStatLabel}>Ангилал</Text>
+                  </View>
+                </View>
+              </View>
+              <LuckyWheelProgressCard
+                warehouseId={warehouseId}
+                onPress={goToLuckyWheel}
+              />
+            </>
           ) : null
         }
         ListEmptyComponent={
@@ -299,6 +323,57 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: 12, paddingTop: 12 },
   columnWrapper: { marginBottom: 0 },
   gridItem: { flex: 1, marginHorizontal: 5, marginBottom: 10 },
+  heroCard: {
+    backgroundColor: '#ecfeff',
+    borderWidth: 1,
+    borderColor: '#a5f3fc',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 12,
+  },
+  heroEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0f766e',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 6,
+  },
+  heroTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 6,
+  },
+  heroSubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#475569',
+    marginBottom: 14,
+  },
+  heroStatsRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  heroStatCard: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#cffafe',
+  },
+  heroStatValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 4,
+  },
+  heroStatLabel: {
+    fontSize: 12,
+    color: '#64748b',
+  },
   cartPillWrap: {
     position: 'absolute',
     left: 0,

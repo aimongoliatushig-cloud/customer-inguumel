@@ -1,11 +1,12 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ProfileScreen } from '~/screens/ProfileScreen';
-import { LocationSwitchScreen } from '~/screens/LocationSwitchScreen';
+import { AccountPrivacyScreen } from '~/screens/AccountPrivacyScreen';
 import { DeliveryAddressScreen } from '~/screens/DeliveryAddressScreen';
+import { LocationSwitchScreen } from '~/screens/LocationSwitchScreen';
 import { LuckyWheelScreen } from '~/screens/LuckyWheelScreen';
-import { SpinResultScreen } from '~/screens/SpinResultScreen';
 import { PrizeWalletScreen } from '~/screens/PrizeWalletScreen';
+import { ProfileScreen } from '~/screens/ProfileScreen';
+import { SpinResultScreen } from '~/screens/SpinResultScreen';
 import type { ProfileStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
@@ -31,6 +32,11 @@ export function ProfileStackNavigator() {
         name="DeliveryAddress"
         component={DeliveryAddressScreen}
         options={{ title: 'Хүргэлтийн хаяг' }}
+      />
+      <Stack.Screen
+        name="AccountPrivacy"
+        component={AccountPrivacyScreen}
+        options={{ title: 'Нууцлал ба бүртгэл' }}
       />
       <Stack.Screen
         name="LuckyWheel"

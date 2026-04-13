@@ -13,3 +13,10 @@ export type LoginRequest = {
 
 /** Register 200 OK → data: { user_id } */
 export type RegisterResponseData = { user_id: number } | null;
+
+export type DeleteAccountResponseData =
+  | {
+      deleted: boolean;
+      retention_note?: string | null;
+    }
+  | null;

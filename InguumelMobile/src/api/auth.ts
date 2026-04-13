@@ -1,10 +1,15 @@
 import { api } from './client';
-import { config } from '~/constants/config';
+import { config, isDev } from '~/constants/config';
 import { normalizeError } from '~/utils/errors';
 import type { ApiResponse, ValidationErrorResponse, AppError } from '~/types';
-import type { RegisterRequest, RegisterResponseData } from '~/types/auth';
+import type {
+  DeleteAccountResponseData,
+  RegisterRequest,
+  RegisterResponseData,
+} from '~/types/auth';
 
 const REGISTER_ENDPOINT = config.registerEndpoint;
+const DELETE_ACCOUNT_ENDPOINT = config.deleteAccountEndpoint;
 
 /**
  * Register user. Sends { phone, pin, pin_confirm }. Throws normalized AppError on failure.
@@ -17,10 +22,10 @@ export async function register(
       REGISTER_ENDPOINT,
       payload
     );
-    // eslint-disable-next-line no-console
-    console.log('AUTH RAW', res?.status, res?.data);
-    // eslint-disable-next-line no-console
-    console.log('AUTH RAW STRING', JSON.stringify(res?.data));
+    if (isDev) {
+      console.log('AUTH RAW', res?.status, res?.data);
+      console.log('AUTH RAW STRING', JSON.stringify(res?.data));
+    }
     const body = res.data;
     if (!body.success) {
       const code = body.code ?? 'UNKNOWN';
@@ -49,6 +54,33 @@ export async function register(
     }
     const appErr = normalizeError(err);
     if (appErr.message.toLowerCase().includes('timeout')) {
+      throw { ...appErr, code: 'TIMEOUT' } as AppError;
+    }
+    throw appErr;
+  }
+}
+
+export async function deleteAccount(): Promise<DeleteAccountResponseData> {
+  try {
+    const res = await api.post<ApiResponse<DeleteAccountResponseData>>(
+      DELETE_ACCOUNT_ENDPOINT
+    );
+    const body = res.data;
+    if (!body.success) {
+      throw {
+        code: body.code ?? 'UNKNOWN',
+        message: body.message ?? 'Request failed',
+        request_id: body.request_id,
+        status: res.status,
+      } as AppError;
+    }
+    return body.data ?? { deleted: true };
+  } catch (err) {
+    if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
+      throw err as AppError;
+    }
+    const appErr = normalizeError(err);
+    if (isDev && appErr.message.toLowerCase().includes('timeout')) {
       throw { ...appErr, code: 'TIMEOUT' } as AppError;
     }
     throw appErr;
